@@ -3,548 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Industrial Energy Inflation Calculator | Commercial Rate Analysis</title>
-    <meta name="description" content="Free calculator shows your actual energy costs in 24 months if rates keep rising. Analyze electricity and natural gas projections for commercial operations.">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Energy Cost Calculator | Free Commercial Rate Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #111827;
-            --bg-card: #1a1f2e;
-            --accent-danger: #ef4444;
-            --accent-warning: #f59e0b;
-            --accent-success: #10b981;
-            --accent-info: #3b82f6;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --border-color: #2d3748;
-            --glow-red: rgba(239, 68, 68, 0.3);
-            --glow-blue: rgba(59, 130, 246, 0.3);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Work Sans', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1419 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 2rem 1rem;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .alert-banner {
-            background: linear-gradient(90deg, var(--accent-danger) 0%, #dc2626 100%);
-            padding: 1rem;
+        .container { max-width: 900px; margin: 0 auto; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             margin-bottom: 2rem;
-            border-radius: 8px;
-            animation: pulse-glow 2s infinite;
         }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px var(--glow-red); }
-            50% { box-shadow: 0 0 40px var(--glow-red); }
-        }
-
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #f9fafb 0%, #d1d5db 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .ai-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 1rem;
-            letter-spacing: 1px;
-        }
-
-        .ticker-container {
-            background: var(--bg-card);
-            border: 2px solid var(--accent-danger);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 0 30px var(--glow-red);
-        }
-
-        .ticker-label {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-danger);
-            font-size: 0.9rem;
+            font-size: 2.2rem;
+            color: #1a202c;
             margin-bottom: 0.5rem;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
-
-        .ticker-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--accent-danger);
-            animation: flicker 3s infinite;
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
         }
-
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+        .alert {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            font-weight: 600;
         }
-
-        .ticker-change {
-            font-size: 1.2rem;
-            color: var(--accent-warning);
-            margin-top: 0.5rem;
-        }
-
-        .main-grid {
+        .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: var(--accent-info);
-            box-shadow: 0 0 20px var(--glow-blue);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            gap: 1.25rem;
             margin-bottom: 1.5rem;
         }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--accent-info);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
         .form-group {
-            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
         }
-
         label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-secondary);
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
         }
-
         input, select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            color: var(--text-primary);
             font-size: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
         }
-
         input:focus, select:focus {
             outline: none;
-            border-color: var(--accent-info);
-            box-shadow: 0 0 10px var(--glow-blue);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
-        .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--accent-info) 0%, #2563eb 100%);
-            border: none;
-            border-radius: 8px;
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin: 2rem 0 1rem 0;
+            font-size: 1rem;
         }
-
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1.125rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px var(--glow-blue);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .results-container {
-            margin-top: 2rem;
-            padding: 2rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 2px solid var(--accent-success);
+        .results {
             display: none;
         }
-
-        .results-container.active {
+        .results.active {
             display: block;
-            animation: slideIn 0.5s ease;
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stat-grid {
+        .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 1.25rem;
             margin-bottom: 2rem;
         }
-
         .stat-box {
-            background: var(--bg-card);
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--accent-danger);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
         }
-
-        .stat-box.positive {
-            border-left-color: var(--accent-success);
-        }
-
         .stat-label {
             font-size: 0.85rem;
-            color: var(--text-secondary);
+            color: #718096;
+            font-weight: 600;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
-
         .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--accent-danger);
+            color: #1a202c;
         }
-
-        .stat-value.positive {
-            color: var(--accent-success);
+        .stat-value.success { color: #48bb78; }
+        .stat-value.danger { color: #f56565; }
+        .chart-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-top: 2rem;
-        }
-
-        .data-table {
-            width: 100%;
-            margin-top: 2rem;
-            border-collapse: collapse;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table th {
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-
-        .data-table td {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .data-table tr:hover {
-            background: var(--bg-secondary);
-        }
-
-        .optional-contact {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
-            border: 2px solid var(--accent-success);
+        .contact-box {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             padding: 2rem;
             border-radius: 12px;
-            margin-top: 3rem;
-        }
-
-        .optional-contact h3 {
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-            color: var(--text-primary);
-        }
-
-        .optional-contact p {
-            margin-bottom: 1.5rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-
-        .optional-contact input {
-            margin-bottom: 1rem;
-            background: var(--bg-card);
-        }
-
-        .optional-contact button {
-            background: linear-gradient(135deg, var(--accent-success) 0%, #059669 100%);
-        }
-
-        .optional-contact .disclaimer {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 1rem;
-            font-style: italic;
-        }
-
-        .info-box {
-            background: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid var(--accent-info);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-
-        .info-box p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .full-width-chart {
-            grid-column: 1 / -1;
-        }
-
-        .success-message {
-            background: var(--accent-success);
             color: white;
+            margin-top: 2rem;
+        }
+        .contact-box h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .contact-box input {
+            margin-bottom: 1rem;
+        }
+        .contact-box button {
+            background: white;
+            color: #38a169;
+            font-weight: 700;
+        }
+        .contact-box button:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .success-msg {
+            display: none;
+            background: white;
+            color: #38a169;
             padding: 1rem;
             border-radius: 8px;
             margin-top: 1rem;
-            display: none;
-            animation: slideIn 0.3s ease;
+            font-weight: 600;
         }
-
-        .success-message.active {
-            display: block;
+        .success-msg.active { display: block; }
+        .value-list {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
         }
-
-        .footer {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-color);
-            margin-top: 4rem;
-        }
-
-        .footer p {
+        .value-list li {
             margin-bottom: 0.5rem;
+            line-height: 1.6;
         }
-
         @media (max-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .ticker-value {
-                font-size: 2rem;
-            }
-
-            .input-group {
-                grid-template-columns: 1fr;
-            }
+            .form-row { grid-template-columns: 1fr; }
+            .card { padding: 1.5rem; }
+            h1 { font-size: 1.75rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="alert-banner">
-                <strong>⚠️ REAL STORY:</strong> Natural gas jumped $1.12/therm in ONE WEEK in early 2026 and hasn't come back down. That's over $100,000/year for a typical restaurant chain. Commercial electricity rates up 23.4% year-over-year.
+        <div class="card">
+            <h1>⚡ Energy Cost Calculator</h1>
+            <p class="subtitle">See what rising rates will cost you. Submit your last 2 bills for analysis.</p>
+            
+            <div class="alert">
+                📈 Natural gas jumped $1.12/therm in ONE WEEK (early 2026). Commercial electricity up 23.4% year-over-year.
             </div>
-            <h1>Free Industrial Energy Inflation Calculator</h1>
-            <p class="subtitle">
-                Calculate exactly how rising energy costs will impact your business over the next 24 months. 
-                See projections for electricity, natural gas, or both. No email required to see your results.
-            </p>
-            <div class="ai-badge">⚡ AI-POWERED ANALYSIS</div>
-        </header>
 
-        <div class="ticker-container">
-            <div class="ticker-label">⚡ Live Commercial Energy Cost Index</div>
-            <div class="ticker-value" id="liveTicker">$0.00</div>
-            <div class="ticker-change" id="tickerChange">↑ Loading market data...</div>
-        </div>
-
-        <div class="main-grid">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Your Energy Profile</h2>
-                    <div class="card-icon">⚡</div>
-                </div>
-
-                <form id="energyForm">
+            <form id="calcForm">
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Energy Type</label>
-                        <select id="energyType">
-                            <option value="electric">Electricity Only</option>
-                            <option value="gas">Natural Gas Only</option>
-                            <option value="both">Both Electric & Gas</option>
-                        </select>
+                        <label>Company Name</label>
+                        <input type="text" id="company" required>
                     </div>
-
                     <div class="form-group">
                         <label>Business Type</label>
-                        <select id="businessType">
-                            <option value="commercial">Commercial</option>
-                            <option value="industrial">Industrial</option>
-                            <option value="datacenter">Data Center / Mining</option>
-                            <option value="manufacturing">Manufacturing</option>
-                            <option value="retail">Retail</option>
-                            <option value="restaurant">Restaurant / Food Service</option>
-                            <option value="other">Other</option>
+                        <select id="bizType" required>
+                            <option value="">Select...</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Data Center">Data Center</option>
+                            <option value="Franchise">Franchise</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
+                </div>
 
-                    <!-- Electric Fields -->
-                    <div id="electricFields">
-                        <div class="input-group">
-                            <div class="form-group">
-                                <label>Monthly Electric Usage</label>
-                                <input type="number" id="elecUsage" placeholder="50000">
-                                <small style="color: var(--text-secondary); font-size: 0.8rem;">kWh</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Current Electric Rate</label>
-                                <input type="number" step="0.001" id="elecRate" placeholder="0.12">
-                                <small style="color: var(--text-secondary); font-size: 0.8rem;">$/kWh</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Gas Fields -->
-                    <div id="gasFields" style="display: none;">
-                        <div class="input-group">
-                            <div class="form-group">
-                                <label>Monthly Gas Usage</label>
-                                <input type="number" id="gasUsage" placeholder="10000">
-                                <small style="color: var(--text-secondary); font-size: 0.8rem;">therms</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Current Gas Rate</label>
-                                <input type="number" step="0.01" id="gasRate" placeholder="1.00">
-                                <small style="color: var(--text-secondary); font-size: 0.8rem;">$/therm</small>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="form-row">
                     <div class="form-group">
-                        <label>State/Region</label>
-                        <select id="region">
-                            <option value="texas">Texas</option>
-                            <option value="california">California</option>
-                            <option value="newyork">New York</option>
-                            <option value="florida">Florida</option>
-                            <option value="illinois">Illinois</option>
-                            <option value="ohio">Ohio</option>
-                            <option value="michigan">Michigan</option>
-                            <option value="georgia">Georgia</option>
-                            <option value="north_carolina">North Carolina</option>
-                            <option value="new_jersey">New Jersey</option>
-                            <option value="virginia">Virginia</option>
-                            <option value="washington">Washington</option>
-                            <option value="arizona">Arizona</option>
-                            <option value="massachusetts">Massachusetts</option>
-                            <option value="tennessee">Tennessee</option>
-                            <option value="indiana">Indiana</option>
-                            <option value="missouri">Missouri</option>
-                            <option value="maryland">Maryland</option>
-                            <option value="wisconsin">Wisconsin</option>
-                            <option value="colorado">Colorado</option>
+                        <label>State</label>
+                        <select id="state" required>
+                            <option value="">Select...</option>
+                            <option value="TX">Texas</option>
+                            <option value="CA">California</option>
+                            <option value="NY">New York</option>
+                            <option value="FL">Florida</option>
+                            <option value="IL">Illinois</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Energy Type</label>
+                        <select id="energyType" required>
+                            <option value="">Select...</option>
+                            <option value="Electric">Electricity Only</option>
+                            <option value="Gas">Natural Gas Only</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-header">📊 Recent Bill (Month 1)</div>
+                
+                <div id="m1Elec" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Electric Usage (kWh)</label>
+                            <input type="number" id="m1ElecKwh" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Electric Bill Amount ($)</label>
+                            <input type="number" id="m1ElecBill" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="m1Gas" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Gas Usage (therms)</label>
+                            <input type="number" id="m1GasTherms" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Gas Bill Amount ($)</label>
+                            <input type="number" id="m1GasBill" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header">📊 Previous Bill (Month 2)</div>
+
+                <div id="m2Elec" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Electric Usage (kWh)</label>
+                            <input type="number" id="m2ElecKwh" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Electric Bill Amount ($)</label>
+                            <input type="number" id="m2ElecBill" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="m2Gas" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Gas Usage (therms)</label>
+                            <input type="number" id="m2GasTherms" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Gas Bill Amount ($)</label>
+                            <input type="number" id="m2GasBill" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit">Calculate My Costs 🚀</button>
+            </form>
+        </div>
+
+        <div class="results" id="results">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem; color: #1a202c;">Your Energy Analysis</h2>
+                <div id="statsDisplay"></div>
+                <div class="chart-box">
+                    <canvas id="costChart"></canvas>
+                </div>
+
+                <div class="contact-box">
+                    <h3>🎯 Get Expert Rate Evaluation</h3>
+                    <p style="margin-bottom: 1rem;">Based on your usage, you may qualify for better rates. Our specialists have:</p>
+                    <ul class="value-list">
+                        <li><strong>20+ years experience</strong> with commercial energy</li>
+                        <li><strong>20+ supplier relationships</strong> for competitive bidding</li>
+                        <li><strong>Access to rebates</strong> most companies miss</li>
+                        <li><strong>Infrastructure financing</strong> options available</li>
+                    </ul>
+
+                    <form id="contactForm">
+                        <input type="text" id="name" placeholder="Your Name" required style="background: white; color: #1a202c;">
+                        <input type="email" id="email" placeholder="Email" required style="background: white; color: #1a202c;">
+                        <input type="tel" id="phone" placeholder="Phone (optional)" style="background: white; color: #1a202c;">
+                        <input type="hidden" id="dataPackage">
+                        <button type="submit">Request Free Consultation</button>
+                    </form>
+                    <div class="success-msg" id="successMsg">
+                        ✅ Thanks! We'll review your data and contact you within 1-2 business days.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB3KEY = '683d9c1d-7e8f-4b13-91d4-dbe277de36b9';
+        const EMAIL = 'id34mining@gmail.com';
+        let data = {};
+        let chart = null;
+
+        document.getElementById('energyType').addEventListener('change', e => {
+            const t = e.target.value;
+            const show = (id, v) => document.getElementById(id).style.display = v ? 'block' : 'none';
+            show('m1Elec', t === 'Electric' || t === 'Both');
+            show('m2Elec', t === 'Electric' || t === 'Both');
+            show('m1Gas', t === 'Gas' || t === 'Both');
+            show('m2Gas', t === 'Gas' || t === 'Both');
+        });
+
+        document.getElementById('calcForm').addEventListener('submit', e => {
+            e.preventDefault();
+            
+            data = {
+                company: document.getElementById('company').value,
+                bizType: document.getElementById('bizType').value,
+                state: document.getElementById('state').value,
+                energyType: document.getElementById('energyType').value
+            };
+
+            const et = data.energyType;
+            if (et === 'Electric' || et === 'Both') {
+                data.m1Elec = {
+                    kwh: parseFloat(document.getElementById('m1ElecKwh').value),
+                    bill: parseFloat(document.getElementById('m1ElecBill').value),
+                    rate: (parseFloat(document.getElementById('m1ElecBill').value) / parseFloat(document.getElementById('m1ElecKwh').value)).toFixed(4)
+                };
+                data.m2Elec = {
+                    kwh: parseFloat(document.getElementById('m2ElecKwh').value),
+                    bill: parseFloat(document.getElementById('m2ElecBill').value),
+                    rate: (parseFloat(document.getElementById('m2ElecBill').value) / parseFloat(document.getElementById('m2ElecKwh').value)).toFixed(4)
+                };
+            }
+
+            if (et === 'Gas' || et === 'Both') {
+                data.m1Gas = {
+                    therms: parseFloat(document.getElementById('m1GasTherms').value),
+                    bill: parseFloat(document.getElementById('m1GasBill').value),
+                    rate: (parseFloat(document.getElementById('m1GasBill').value) / parseFloat(document.getElementById('m1GasTherms').value)).toFixed(2)
+                };
+                data.m2Gas = {
+                    therms: parseFloat(document.getElementById('m2GasTherms').value),
+                    bill: parseFloat(document.getElementById('m2GasBill').value),
+                    rate: (parseFloat(document.getElementById('m2GasBill').value) / parseFloat(document.getElementById('m2GasTherms').value)).toFixed(2)
+                };
+            }
+
+            showResults();
+        });
+
+        function animateValue(elem, target) {
+            let current = 0;
+            const step = target / 50;
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    elem.textContent = '$' + Math.round(target).toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    elem.textContent = '$' + Math.round(current).toLocaleString();
+                }
+            }, 15);
+        }
+
+        function showResults() {
+            let html = '<div class="stats">';
+            let chartLabels = ['Month 2', 'Month 1'];
+            let chartData = [];
+            let totalM1 = 0, totalM2 = 0;
+
+            if (data.m1Elec) {
+                const change = ((data.m1Elec.bill - data.m2Elec.bill) / data.m2Elec.bill * 100).toFixed(1);
+                totalM1 += data.m1Elec.bill;
+                totalM2 += data.m2Elec.bill;
+                
+                html += `
+                    <div class="stat-box">
+                        <div class="stat-label">Electric (Recent)</div>
+                        <div class="stat-value" id="elec1">$0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Electric Change</div>
+                        <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
+                    </div>
+                `;
+
+                chartData.push({
+                    label: 'Electricity',
+                    data: [data.m2Elec.bill, data.m1Elec.bill],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                });
+            }
+
+            if (data.m1Gas) {
+                const change = ((data.m1Gas.bill - data.m2Gas.bill) / data.m2Gas.bill * 100).toFixed(1);
+                totalM1 += data.m1Gas.bill;
+                totalM2 += data.m2Gas.bill;
+                
+                html += `
+                    <div class="stat-box">
+                        <div class="stat-label">Gas (Recent)</div>
+                        <div class="stat-value" id="gas1">$0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Gas Change</div>
+                        <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
+                    </div>
+                `;
+
+                chartData.push({
+                    label: 'Natural Gas',
+                    data: [data.m2Gas.bill, data.m1Gas.bill],
+                    borderColor: '#f6ad55',
+                    backgroundColor: 'rgba(246, 173, 85, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                });
+            }
+
+            const monthIncrease = totalM1 - totalM2;
+            const annualSavings = monthIncrease * 12;
+
+            html += `
+                <div class="stat-box" style="border-left-color: #f56565;">
+                    <div class="stat-label">Monthly Increase</div>
+                    <div class="stat-value danger" id="increase">$0</div>
+                </div>
+                <div class="stat-box" style="border-left-color: #48bb78;">
+                    <div class="stat-label">Annual Savings (if locked)</div>
+                    <div class="stat-value success" id="savings">$0</div>
+                </div>
+            `;
+
+            html += '</div>';
+            document.getElementById('statsDisplay').innerHTML = html;
+            document.getElementById('results').classList.add('active');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+            setTimeout(() => {
+                if (data.m1Elec) animateValue(document.getElementById('elec1'), data.m1Elec.bill);
+                if (data.m1Gas) animateValue(document.getElementById('gas1'), data.m1Gas.bill);
+                animateValue(document.getElementById('increase'), monthIncrease);
+                animateValue(document.getElementById('savings'), annualSavings);
+
+                if (chart) chart.destroy();
+                const ctx = document.getElementById('costChart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: chartLabels, datasets: chartData },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: c => c.dataset.label + ': $' + c.parsed.y.toLocaleString()
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { callback: v => '$' + v.toLocaleString() }
+                            }
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async e => {
+            e.preventDefault();
+
+            let msg = `ENERGY RATE EVALUATION REQUEST
+==========================================
+
+CONTACT:
+Name: ${document.getElementById('name').value}
+Email: ${document.getElementById('email').value}
+Phone: ${document.getElementById('phone').value || 'Not provided'}
+
+COMPANY:
+Name: ${data.company}
+Type: ${data.bizType}
+State: ${data.state}
+Energy: ${data.energyType}
+
+`;
+
+            if (data.m1Elec) {
+                const trend = ((data.m1Elec.bill - data.m2Elec.bill) / data.m2Elec.bill * 100).toFixed(1);
+                msg += `ELECTRICITY - LAST 2 MONTHS:
+
+MONTH 1: ${data.m1Elec.kwh.toLocaleString()} kWh @ $${data.m1Elec.rate}/kWh = $${data.m1Elec.bill.toLocaleString()}
+MONTH 2: ${data.m2Elec.kwh.toLocaleString()} kWh @ $${data.m2Elec.rate}/kWh = $${data.m2Elec.bill.toLocaleString()}
+Trend: ${trend}% change
+Annual: ~$${(data.m1Elec.bill * 12).toLocaleString()}
+
+`;
+            }
+
+            if (data.m1Gas) {
+                const trend = ((data.m1Gas.bill - data.m2Gas.bill) / data.m2Gas.bill * 100).toFixed(1);
+                msg += `NATURAL GAS - LAST 2 MONTHS:
+
+MONTH 1: ${data.m1Gas.therms.toLocaleString()} therms @ $${data.m1Gas.rate}/therm = $${data.m1Gas.bill.toLocaleString()}
+MONTH 2: ${data.m2Gas.therms.toLocaleString()} therms @ $${data.m2Gas.rate}/therm = $${data.m2Gas.bill.toLocaleString()}
+Trend: ${trend}% change
+Annual: ~$${(data.m1Gas.bill * 12).toLocaleString()}
+
+`;
+            }
+
+            msg += `Submitted: ${new Date().toLocaleString()}`;
+
+            try {
+                const res = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_key: WEB3KEY,
+                        subject: `Energy Analysis: ${data.company} - ${data.bizType}`,
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        message: msg,
+                        to: EMAIL
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('successMsg').classList.add('active');
+                    e.target.reset();
+                }
+            } catch (err) {
+                alert('Error. Email us at ' + EMAIL);
+            }
+        });
+    </script>
+</body>
+</html>                            <option value="colorado">Colorado</option>
                             <option value="minnesota">Minnesota</option>
                             <option value="south_carolina">South Carolina</option>
                             <option value="alabama">Alabama</option>

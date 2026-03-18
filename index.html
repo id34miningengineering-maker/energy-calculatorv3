@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Usage Analysis | ID34 Mining</title>
+    <title>Energy Cost Analysis Tool | ID34 Mining</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* Professional Loading Animation */
+        /* Loading animation */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -43,74 +43,44 @@
             z-index: 9999;
             transition: opacity 0.8s ease;
         }
-
+        
         .loading-content {
             text-align: center;
-            max-width: 400px;
-            padding: 2rem;
         }
-
-        .loading-logo {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 2rem;
-            letter-spacing: 2px;
-        }
-
+        
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 2rem;
-            border: 2px solid var(--border);
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            border: 4px solid var(--border);
             border-top-color: var(--accent);
+            border-right-color: var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 1s linear infinite;
         }
-
-        .loading-bar {
-            width: 280px;
-            height: 3px;
-            background: var(--border);
-            border-radius: 3px;
-            margin: 1.5rem auto;
-            overflow: hidden;
-        }
-
-        .loading-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent), #2563eb);
-            animation: load 2s ease forwards;
-        }
-
+        
         .loading-text {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: 600;
             letter-spacing: 1px;
-            text-transform: uppercase;
+        }
+        
+        .loading-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+        
+        .loading-overlay.fade-out { 
+            opacity: 0; 
+            pointer-events: none; 
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes load {
-            0% { width: 0%; }
-            20% { width: 20%; }
-            50% { width: 60%; }
-            80% { width: 85%; }
-            100% { width: 100%; }
-        }
-
-        .loading-overlay.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Main Content Styles */
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         
         header {
@@ -318,15 +288,12 @@
     </style>
 </head>
 <body>
-    <!-- Professional Loading Animation -->
+    <!-- Loading animation -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
-            <div class="loading-logo">ID34 MINING</div>
             <div class="loading-spinner"></div>
-            <div class="loading-bar">
-                <div class="loading-bar-fill"></div>
-            </div>
-            <div class="loading-text">Loading energy analysis tools...</div>
+            <div class="loading-text">ID34 MINING</div>
+            <div class="loading-subtext">Loading energy analysis tools...</div>
         </div>
     </div>
 
@@ -335,7 +302,7 @@
             <div class="alert">
                 <strong>⚠️ MARKET ALERT:</strong> Natural gas jumped $1.12/therm in ONE WEEK (early 2026). Commercial electricity +23.4% YoY. Get your rates evaluated now.
             </div>
-            <h1>Energy Usage Analysis</h1>
+            <h1>Energy Cost Analysis</h1>
             <p class="subtitle">Submit last 2 months of usage • Get professional rate evaluation</p>
         </header>
 
@@ -442,13 +409,13 @@
                     </div>
                 </div>
 
-                <button type="submit">Analyze My Usage</button>
+                <button type="submit">Analyze My Costs</button>
             </form>
         </div>
 
         <div class="results" id="results">
             <div class="card">
-                <h2 class="section-title">Your Usage Analysis</h2>
+                <h2 class="section-title">Your Cost Analysis</h2>
                 <div id="statsContainer"></div>
                 <div class="chart-container">
                     <canvas id="chart"></canvas>
@@ -490,285 +457,275 @@
 
         <footer>
             <p><strong>ID34 Mining & Sustainable Engineering</strong></p>
-            <p>Professional Energy Usage Analysis</p>
+            <p>Professional Energy Cost Analysis</p>
         </footer>
     </div>
 
     <script>
-        // Fade out loading animation
+        // Hide loading animation after page loads
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.getElementById('loadingOverlay').classList.add('fade-out');
             }, 2000);
         });
 
-        // Main application code
-        (function() {
-            const KEY = '683d9c1d-7e8f-4b13-91d4-dbe277de36b9';
-            const TO = 'id34mining@gmail.com';
-            let data = {};
-            let chart;
+        const KEY = '683d9c1d-7e8f-4b13-91d4-dbe277de36b9';
+        const TO = 'id34mining@gmail.com';
+        let data = {};
+        let chart;
 
-            const energyType = document.getElementById('energyType');
-            const electricSection = document.getElementById('electricSection');
-            const gasSection = document.getElementById('gasSection');
-            const mainForm = document.getElementById('mainForm');
-            const contactForm = document.getElementById('contactForm');
+        document.getElementById('energyType').addEventListener('change', (e) => {
+            const type = e.target.value;
+            document.getElementById('electricSection').style.display = (type === 'electric' || type === 'both') ? 'block' : 'none';
+            document.getElementById('gasSection').style.display = (type === 'gas' || type === 'both') ? 'block' : 'none';
+        });
 
-            if (energyType) {
-                energyType.addEventListener('change', function(e) {
-                    const type = e.target.value;
-                    if (electricSection) {
-                        electricSection.style.display = (type === 'electric' || type === 'both') ? 'block' : 'none';
-                    }
-                    if (gasSection) {
-                        gasSection.style.display = (type === 'gas' || type === 'both') ? 'block' : 'none';
-                    }
-                });
+        document.getElementById('mainForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            data = {
+                company: document.getElementById('company').value,
+                bizType: document.getElementById('bizType').value,
+                state: document.getElementById('state').value,
+                energyType: document.getElementById('energyType').value
+            };
+
+            const type = data.energyType;
+            
+            if (type === 'electric' || type === 'both') {
+                const e1usage = parseFloat(document.getElementById('e1usage').value) || 0;
+                const e1rate = parseFloat(document.getElementById('e1rate').value) || 0;
+                const e2usage = parseFloat(document.getElementById('e2usage').value) || 0;
+                const e2rate = parseFloat(document.getElementById('e2rate').value) || 0;
+
+                data.e1 = {
+                    usage: e1usage,
+                    rate: e1rate,
+                    bill: e1usage * e1rate
+                };
+                data.e2 = {
+                    usage: e2usage,
+                    rate: e2rate,
+                    bill: e2usage * e2rate
+                };
             }
 
-            if (mainForm) {
-                mainForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    data = {
-                        company: document.getElementById('company')?.value || '',
-                        bizType: document.getElementById('bizType')?.value || '',
-                        state: document.getElementById('state')?.value || '',
-                        energyType: energyType?.value || ''
-                    };
+            if (type === 'gas' || type === 'both') {
+                const g1usage = parseFloat(document.getElementById('g1usage').value) || 0;
+                const g1rate = parseFloat(document.getElementById('g1rate').value) || 0;
+                const g2usage = parseFloat(document.getElementById('g2usage').value) || 0;
+                const g2rate = parseFloat(document.getElementById('g2rate').value) || 0;
 
-                    const type = data.energyType;
-                    
-                    if (type === 'electric' || type === 'both') {
-                        const e1usage = parseFloat(document.getElementById('e1usage')?.value) || 0;
-                        const e1rate = parseFloat(document.getElementById('e1rate')?.value) || 0;
-                        const e2usage = parseFloat(document.getElementById('e2usage')?.value) || 0;
-                        const e2rate = parseFloat(document.getElementById('e2rate')?.value) || 0;
-
-                        data.e1 = {
-                            usage: e1usage,
-                            rate: e1rate,
-                            bill: e1usage * e1rate
-                        };
-                        data.e2 = {
-                            usage: e2usage,
-                            rate: e2rate,
-                            bill: e2usage * e2rate
-                        };
-                    }
-
-                    if (type === 'gas' || type === 'both') {
-                        const g1usage = parseFloat(document.getElementById('g1usage')?.value) || 0;
-                        const g1rate = parseFloat(document.getElementById('g1rate')?.value) || 0;
-                        const g2usage = parseFloat(document.getElementById('g2usage')?.value) || 0;
-                        const g2rate = parseFloat(document.getElementById('g2rate')?.value) || 0;
-
-                        data.g1 = {
-                            usage: g1usage,
-                            rate: g1rate,
-                            bill: g1usage * g1rate
-                        };
-                        data.g2 = {
-                            usage: g2usage,
-                            rate: g2rate,
-                            bill: g2usage * g2rate
-                        };
-                    }
-
-                    showResults();
-                });
+                data.g1 = {
+                    usage: g1usage,
+                    rate: g1rate,
+                    bill: g1usage * g1rate
+                };
+                data.g2 = {
+                    usage: g2usage,
+                    rate: g2rate,
+                    bill: g2usage * g2rate
+                };
             }
 
-            function showResults() {
-                let html = '<div class="stats-grid">';
-                let labels = ['Month 2', 'Month 1'];
-                let datasets = [];
+            showResults();
+        });
 
-                if (data.e1) {
-                    const change = ((data.e1.bill - data.e2.bill) / data.e2.bill * 100).toFixed(1);
-                    html += `
-                        <div class="stat-box">
-                            <div class="stat-label">Electric M1</div>
-                            <div class="stat-value">$${Math.round(data.e1.bill).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Electric M2</div>
-                            <div class="stat-value">$${Math.round(data.e2.bill).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Change</div>
-                            <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
-                        </div>
-                    `;
-                    datasets.push({
-                        label: 'Electric',
-                        data: [data.e2.bill, data.e1.bill],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    });
+        function animate(el, target) {
+            let curr = 0;
+            const inc = target / 50;
+            const timer = setInterval(() => {
+                curr += inc;
+                if (curr >= target) {
+                    el.textContent = '$' + Math.round(target).toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    el.textContent = '$' + Math.round(curr).toLocaleString();
                 }
+            }, 20);
+        }
 
-                if (data.g1) {
-                    const change = ((data.g1.bill - data.g2.bill) / data.g2.bill * 100).toFixed(1);
-                    html += `
-                        <div class="stat-box">
-                            <div class="stat-label">Gas M1</div>
-                            <div class="stat-value">$${Math.round(data.g1.bill).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Gas M2</div>
-                            <div class="stat-value">$${Math.round(data.g2.bill).toLocaleString()}</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Change</div>
-                            <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
-                        </div>
-                    `;
-                    datasets.push({
-                        label: 'Gas',
-                        data: [data.g2.bill, data.g1.bill],
-                        borderColor: '#fbbf24',
-                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    });
-                }
+        function showResults() {
+            let html = '<div class="stats-grid">';
+            let labels = ['Month 2', 'Month 1'];
+            let datasets = [];
 
-                const totalM1 = (data.e1?.bill || 0) + (data.g1?.bill || 0);
-                const totalM2 = (data.e2?.bill || 0) + (data.g2?.bill || 0);
-                const monthlyInc = totalM1 - totalM2;
-                const savings = monthlyInc * 24;
-
+            if (data.e1) {
+                const change = ((data.e1.bill - data.e2.bill) / data.e2.bill * 100).toFixed(1);
                 html += `
-                    <div class="stat-box" style="border-left-color: #ef4444;">
-                        <div class="stat-label">Monthly Change</div>
-                        <div class="stat-value danger">$${Math.round(monthlyInc).toLocaleString()}</div>
+                    <div class="stat-box">
+                        <div class="stat-label">Electric M1</div>
+                        <div class="stat-value" data-val="${data.e1.bill}">$0</div>
                     </div>
-                    <div class="stat-box" style="border-left-color: #10b981;">
-                        <div class="stat-label">24-Mo Savings Potential</div>
-                        <div class="stat-value success">$${Math.round(savings > 0 ? savings : 0).toLocaleString()}</div>
+                    <div class="stat-box">
+                        <div class="stat-label">Electric M2</div>
+                        <div class="stat-value">$${Math.round(data.e2.bill).toLocaleString()}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Change</div>
+                        <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
                     </div>
                 `;
-
-                html += '</div>';
-                
-                const statsContainer = document.getElementById('statsContainer');
-                if (statsContainer) {
-                    statsContainer.innerHTML = html;
-                }
-
-                const results = document.getElementById('results');
-                if (results) {
-                    results.classList.add('active');
-                }
-
-                if (datasets.length > 0) {
-                    if (chart) chart.destroy();
-                    const ctx = document.getElementById('chart')?.getContext('2d');
-                    if (ctx) {
-                        chart = new Chart(ctx, {
-                            type: 'line',
-                            data: { labels, datasets },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { labels: { color: '#9ca3af' } }
-                                },
-                                scales: {
-                                    y: {
-                                        ticks: {
-                                            color: '#9ca3af',
-                                            callback: (val) => '$' + val.toLocaleString()
-                                        },
-                                        grid: { color: '#2d3748' }
-                                    },
-                                    x: {
-                                        ticks: { color: '#9ca3af' },
-                                        grid: { color: '#2d3748' }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-
-                results?.scrollIntoView({ behavior: 'smooth' });
+                datasets.push({
+                    label: 'Electric',
+                    data: [data.e2.bill, data.e1.bill],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                });
             }
 
-            if (contactForm) {
-                contactForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+            if (data.g1) {
+                const change = ((data.g1.bill - data.g2.bill) / data.g2.bill * 100).toFixed(1);
+                html += `
+                    <div class="stat-box">
+                        <div class="stat-label">Gas M1</div>
+                        <div class="stat-value" data-val="${data.g1.bill}">$0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Gas M2</div>
+                        <div class="stat-value">$${Math.round(data.g2.bill).toLocaleString()}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Change</div>
+                        <div class="stat-value ${change >= 0 ? 'danger' : 'success'}">${change >= 0 ? '+' : ''}${change}%</div>
+                    </div>
+                `;
+                datasets.push({
+                    label: 'Gas',
+                    data: [data.g2.bill, data.g1.bill],
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                });
+            }
 
-                    let body = `ENERGY RATE EVALUATION REQUEST
+            const totalM1 = (data.e1?.bill || 0) + (data.g1?.bill || 0);
+            const totalM2 = (data.e2?.bill || 0) + (data.g2?.bill || 0);
+            const monthlyInc = totalM1 - totalM2;
+            const savings = monthlyInc * 24;
+
+            html += `
+                <div class="stat-box" style="border-left-color: #ef4444;">
+                    <div class="stat-label">Monthly Increase</div>
+                    <div class="stat-value danger" data-val="${monthlyInc}">$0</div>
+                </div>
+                <div class="stat-box" style="border-left-color: #10b981;">
+                    <div class="stat-label">24-Mo Savings Potential</div>
+                    <div class="stat-value success" data-val="${savings}">$0</div>
+                </div>
+            `;
+
+            html += '</div>';
+            document.getElementById('statsContainer').innerHTML = html;
+            document.getElementById('results').classList.add('active');
+
+            setTimeout(() => {
+                document.querySelectorAll('[data-val]').forEach(el => {
+                    animate(el, +el.getAttribute('data-val'));
+                });
+
+                if (chart) chart.destroy();
+                const ctx = document.getElementById('chart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#9ca3af' } }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    color: '#9ca3af',
+                                    callback: (val) => '$' + val.toLocaleString()
+                                },
+                                grid: { color: '#2d3748' }
+                            },
+                            x: {
+                                ticks: { color: '#9ca3af' },
+                                grid: { color: '#2d3748' }
+                            }
+                        }
+                    }
+                });
+            }, 100);
+
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            let body = `ENERGY RATE EVALUATION REQUEST
 
 CONTACT:
-Name: ${document.getElementById('name')?.value || ''}
-Email: ${document.getElementById('email')?.value || ''}
-Phone: ${document.getElementById('phone')?.value || 'Not provided'}
+Name: ${document.getElementById('name').value}
+Email: ${document.getElementById('email').value}
+Phone: ${document.getElementById('phone').value || 'Not provided'}
 
 COMPANY:
-Name: ${data.company || ''}
-Type: ${data.bizType || ''}
-State: ${data.state || ''}
-Energy: ${data.energyType || ''}
+Name: ${data.company}
+Type: ${data.bizType}
+State: ${data.state}
+Energy: ${data.energyType}
 
 `;
 
-                    if (data.e1) {
-                        body += `ELECTRIC - LAST 2 MONTHS:
+            if (data.e1) {
+                const trend = ((data.e1.bill - data.e2.bill) / data.e2.bill * 100).toFixed(1);
+                body += `ELECTRIC - LAST 2 MONTHS:
 
 Month 1: ${data.e1.usage.toLocaleString()} kWh @ $${data.e1.rate}/kWh = $${data.e1.bill.toLocaleString()}
 Month 2: ${data.e2.usage.toLocaleString()} kWh @ $${data.e2.rate}/kWh = $${data.e2.bill.toLocaleString()}
+Trend: ${trend}% change
 Annual: ~$${(data.e1.bill * 12).toLocaleString()}
 
 `;
-                    }
+            }
 
-                    if (data.g1) {
-                        body += `GAS - LAST 2 MONTHS:
+            if (data.g1) {
+                const trend = ((data.g1.bill - data.g2.bill) / data.g2.bill * 100).toFixed(1);
+                body += `GAS - LAST 2 MONTHS:
 
 Month 1: ${data.g1.usage.toLocaleString()} therms @ $${data.g1.rate}/therm = $${data.g1.bill.toLocaleString()}
 Month 2: ${data.g2.usage.toLocaleString()} therms @ $${data.g2.rate}/therm = $${data.g2.bill.toLocaleString()}
+Trend: ${trend}% change
 Annual: ~$${(data.g1.bill * 12).toLocaleString()}
 
 `;
-                    }
-
-                    body += `Submitted: ${new Date().toLocaleString()}`;
-
-                    try {
-                        const res = await fetch('https://api.web3forms.com/submit', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                access_key: KEY,
-                                subject: `Energy Analysis: ${data.company || 'Unknown'}`,
-                                from_name: 'Energy Calculator',
-                                name: document.getElementById('name')?.value || '',
-                                email: document.getElementById('email')?.value || '',
-                                message: body,
-                                to: TO
-                            })
-                        });
-
-                        const result = await res.json();
-                        if (result.success) {
-                            const successMsg = document.getElementById('success');
-                            if (successMsg) {
-                                successMsg.classList.add('active');
-                            }
-                            contactForm.reset();
-                        }
-                    } catch (err) {
-                        alert('Error sending. Please email us at ' + TO);
-                    }
-                });
             }
-        })();
+
+            body += `Submitted: ${new Date().toLocaleString()}`;
+
+            try {
+                const res = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        access_key: KEY,
+                        subject: `Energy Analysis: ${data.company}`,
+                        from_name: 'Energy Calculator',
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        message: body,
+                        to: TO
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('success').classList.add('active');
+                    e.target.reset();
+                }
+            } catch (err) {
+                alert('Error. Email us at ' + TO);
+            }
+        });
     </script>
 </body>
 </html>

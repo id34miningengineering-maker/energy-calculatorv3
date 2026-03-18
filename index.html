@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Cost Analysis Tool | ID34 Mining</title>
+    <title>Energy Usage Analysis | ID34 Mining</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -17,6 +17,8 @@
             --text: #f9fafb;
             --text-muted: #9ca3af;
             --border: #2d3748;
+            --energy-yellow: #fbbf24;
+            --energy-cyan: #22d3ee;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,10 +29,187 @@
             color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         
+        /* Loading Animation Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0a0e17 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .energy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .grid-cell {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: gridPulse 2s infinite;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(59, 130, 246, 0.1),
+                transparent
+            );
+            animation: gridShine 3s infinite;
+        }
+
+        .grid-cell:nth-child(1) { animation-delay: 0s; }
+        .grid-cell:nth-child(2) { animation-delay: 0.2s; }
+        .grid-cell:nth-child(3) { animation-delay: 0.4s; }
+        .grid-cell:nth-child(4) { animation-delay: 0.6s; }
+        .grid-cell:nth-child(5) { animation-delay: 0.8s; }
+        .grid-cell:nth-child(6) { animation-delay: 1s; }
+
+        .grid-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            animation: iconPulse 2s infinite;
+        }
+
+        .grid-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grid-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, var(--energy-cyan), var(--energy-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .orbiting-particles {
+            position: relative;
+            height: 150px;
+            margin: 2rem 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbit 3s linear infinite;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .particle:nth-child(1) { animation-delay: 0s; background: #3b82f6; }
+        .particle:nth-child(2) { animation-delay: 0.5s; background: #fbbf24; }
+        .particle:nth-child(3) { animation-delay: 1s; background: #ef4444; }
+        .particle:nth-child(4) { animation-delay: 1.5s; background: #10b981; }
+        .particle:nth-child(5) { animation-delay: 2s; background: #8b5cf6; }
+
+        .loading-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            background: linear-gradient(135deg, var(--text), var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading-subtext {
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 2rem auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--energy-cyan));
+            animation: progressLoad 2.5s ease forwards;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { transform: scale(1); border-color: var(--border); }
+            50% { transform: scale(1.05); border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
+        }
+
+        @keyframes gridShine {
+            0% { transform: rotate(0deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+        }
+
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            20% { width: 30%; }
+            50% { width: 60%; }
+            80% { width: 85%; }
+            100% { width: 100%; }
+        }
+
+        /* Main content styles */
         header {
             text-align: center;
             margin-bottom: 2rem;
@@ -129,6 +308,13 @@
             font-size: 0.9rem;
             color: var(--accent);
             margin-bottom: 0.75rem;
+        }
+
+        .calculated-hint {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 0.25rem;
+            opacity: 0.8;
         }
 
         button {
@@ -232,17 +418,71 @@
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
             .form-row { grid-template-columns: 1fr; }
+            .energy-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Animation Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="energy-grid">
+                <div class="grid-cell">
+                    <div class="grid-icon">⚡</div>
+                    <div class="grid-label">Usage Analysis</div>
+                    <div class="grid-value">Month 1</div>
+                </div>
+                <div class="grid-cell">
+                    <div class="grid-icon">📊</div>
+                    <div class="grid-label">Rate Check</div>
+                    <div class="grid-value">Month 2</div>
+                </div>
+                <div class="grid-cell">
+                    <div class="grid-icon">🔥</div>
+                    <div class="grid-label">Comparison</div>
+                    <div class="grid-value">Trends</div>
+                </div>
+                <div class="grid-cell">
+                    <div class="grid-icon">💡</div>
+                    <div class="grid-label">Savings</div>
+                    <div class="grid-value">Potential</div>
+                </div>
+                <div class="grid-cell">
+                    <div class="grid-icon">📈</div>
+                    <div class="grid-label">Analysis</div>
+                    <div class="grid-value">24 Months</div>
+                </div>
+                <div class="grid-cell">
+                    <div class="grid-icon">🎯</div>
+                    <div class="grid-label">Optimization</div>
+                    <div class="grid-value">Ready</div>
+                </div>
+            </div>
+
+            <div class="orbiting-particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+
+            <div class="loading-text">Preparing Your Energy Analysis</div>
+            <div class="loading-subtext">Loading rate data • Analyzing usage patterns • Calculating trends</div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="alert">
                 <strong>⚠️ MARKET ALERT:</strong> Natural gas jumped $1.12/therm in ONE WEEK (early 2026). Commercial electricity +23.4% YoY. Get your rates evaluated now.
             </div>
-            <h1>Energy Cost Analysis</h1>
-            <p class="subtitle">Submit last 2 months of bills • Get professional rate evaluation</p>
+            <h1>Energy Usage Analysis</h1>
+            <p class="subtitle">Submit last 2 months of usage • Get professional rate evaluation</p>
         </header>
 
         <div class="card">
@@ -294,17 +534,14 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Usage (kWh)</label>
-                                <input type="number" id="e1usage" step="1">
+                                <input type="number" id="e1usage" step="1" required>
                             </div>
                             <div class="form-group">
                                 <label>Rate ($/kWh)</label>
-                                <input type="number" id="e1rate" step="0.0001">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Bill ($)</label>
-                                <input type="number" id="e1bill" step="0.01">
+                                <input type="number" id="e1rate" step="0.0001" required>
                             </div>
                         </div>
+                        <div class="calculated-hint">Bill calculated: $<span id="e1calculated">0.00</span></div>
                     </div>
 
                     <div class="month-section">
@@ -312,17 +549,14 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Usage (kWh)</label>
-                                <input type="number" id="e2usage" step="1">
+                                <input type="number" id="e2usage" step="1" required>
                             </div>
                             <div class="form-group">
                                 <label>Rate ($/kWh)</label>
-                                <input type="number" id="e2rate" step="0.0001">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Bill ($)</label>
-                                <input type="number" id="e2bill" step="0.01">
+                                <input type="number" id="e2rate" step="0.0001" required>
                             </div>
                         </div>
+                        <div class="calculated-hint">Bill calculated: $<span id="e2calculated">0.00</span></div>
                     </div>
                 </div>
 
@@ -332,17 +566,14 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Usage (therms)</label>
-                                <input type="number" id="g1usage" step="1">
+                                <input type="number" id="g1usage" step="1" required>
                             </div>
                             <div class="form-group">
                                 <label>Rate ($/therm)</label>
-                                <input type="number" id="g1rate" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Bill ($)</label>
-                                <input type="number" id="g1bill" step="0.01">
+                                <input type="number" id="g1rate" step="0.01" required>
                             </div>
                         </div>
+                        <div class="calculated-hint">Bill calculated: $<span id="g1calculated">0.00</span></div>
                     </div>
 
                     <div class="month-section">
@@ -350,27 +581,24 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Usage (therms)</label>
-                                <input type="number" id="g2usage" step="1">
+                                <input type="number" id="g2usage" step="1" required>
                             </div>
                             <div class="form-group">
                                 <label>Rate ($/therm)</label>
-                                <input type="number" id="g2rate" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label>Total Bill ($)</label>
-                                <input type="number" id="g2bill" step="0.01">
+                                <input type="number" id="g2rate" step="0.01" required>
                             </div>
                         </div>
+                        <div class="calculated-hint">Bill calculated: $<span id="g2calculated">0.00</span></div>
                     </div>
                 </div>
 
-                <button type="submit">Analyze My Costs</button>
+                <button type="submit">Analyze My Usage</button>
             </form>
         </div>
 
         <div class="results" id="results">
             <div class="card">
-                <h2 class="section-title">Your Cost Analysis</h2>
+                <h2 class="section-title">Your Usage Analysis</h2>
                 <div id="statsContainer"></div>
                 <div class="chart-container">
                     <canvas id="chart"></canvas>
@@ -378,7 +606,7 @@
 
                 <div class="contact-box">
                     <h3>Get Professional Rate Evaluation</h3>
-                    <p>Based on your usage, you may qualify for rate optimization. Our specialists have:</p>
+                    <p>Based on your usage patterns, you may qualify for rate optimization. Our specialists have:</p>
                     <ul>
                         <li>20+ years experience</li>
                         <li>Relationships with 20+ suppliers</li>
@@ -413,7 +641,7 @@
 
         <footer>
             <p><strong>ID34 Mining & Sustainable Engineering</strong></p>
-            <p>Professional Energy Cost Analysis</p>
+            <p>Professional Energy Usage Analysis</p>
         </footer>
     </div>
 
@@ -422,6 +650,44 @@
         const TO = 'id34mining@gmail.com';
         let data = {};
         let chart;
+
+        // Auto-calculate bill amounts in real-time
+        function updateCalculations() {
+            // Electric calculations
+            const e1usage = parseFloat(document.getElementById('e1usage').value) || 0;
+            const e1rate = parseFloat(document.getElementById('e1rate').value) || 0;
+            const e1bill = e1usage * e1rate;
+            document.getElementById('e1calculated').textContent = e1bill.toFixed(2);
+
+            const e2usage = parseFloat(document.getElementById('e2usage').value) || 0;
+            const e2rate = parseFloat(document.getElementById('e2rate').value) || 0;
+            const e2bill = e2usage * e2rate;
+            document.getElementById('e2calculated').textContent = e2bill.toFixed(2);
+
+            // Gas calculations
+            const g1usage = parseFloat(document.getElementById('g1usage').value) || 0;
+            const g1rate = parseFloat(document.getElementById('g1rate').value) || 0;
+            const g1bill = g1usage * g1rate;
+            document.getElementById('g1calculated').textContent = g1bill.toFixed(2);
+
+            const g2usage = parseFloat(document.getElementById('g2usage').value) || 0;
+            const g2rate = parseFloat(document.getElementById('g2rate').value) || 0;
+            const g2bill = g2usage * g2rate;
+            document.getElementById('g2calculated').textContent = g2bill.toFixed(2);
+        }
+
+        // Add event listeners for real-time calculations
+        ['e1usage', 'e1rate', 'e2usage', 'e2rate', 'g1usage', 'g1rate', 'g2usage', 'g2rate'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updateCalculations);
+            }
+        });
+
+        // Fade out loading animation after 3.5 seconds
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').classList.add('fade-out');
+        }, 3500);
 
         document.getElementById('energyType').addEventListener('change', (e) => {
             const type = e.target.value;
@@ -442,28 +708,38 @@
             const type = data.energyType;
             
             if (type === 'electric' || type === 'both') {
+                const e1usage = parseFloat(document.getElementById('e1usage').value) || 0;
+                const e1rate = parseFloat(document.getElementById('e1rate').value) || 0;
+                const e2usage = parseFloat(document.getElementById('e2usage').value) || 0;
+                const e2rate = parseFloat(document.getElementById('e2rate').value) || 0;
+
                 data.e1 = {
-                    usage: +document.getElementById('e1usage').value,
-                    rate: +document.getElementById('e1rate').value,
-                    bill: +document.getElementById('e1bill').value
+                    usage: e1usage,
+                    rate: e1rate,
+                    bill: e1usage * e1rate
                 };
                 data.e2 = {
-                    usage: +document.getElementById('e2usage').value,
-                    rate: +document.getElementById('e2rate').value,
-                    bill: +document.getElementById('e2bill').value
+                    usage: e2usage,
+                    rate: e2rate,
+                    bill: e2usage * e2rate
                 };
             }
 
             if (type === 'gas' || type === 'both') {
+                const g1usage = parseFloat(document.getElementById('g1usage').value) || 0;
+                const g1rate = parseFloat(document.getElementById('g1rate').value) || 0;
+                const g2usage = parseFloat(document.getElementById('g2usage').value) || 0;
+                const g2rate = parseFloat(document.getElementById('g2rate').value) || 0;
+
                 data.g1 = {
-                    usage: +document.getElementById('g1usage').value,
-                    rate: +document.getElementById('g1rate').value,
-                    bill: +document.getElementById('g1bill').value
+                    usage: g1usage,
+                    rate: g1rate,
+                    bill: g1usage * g1rate
                 };
                 data.g2 = {
-                    usage: +document.getElementById('g2usage').value,
-                    rate: +document.getElementById('g2rate').value,
-                    bill: +document.getElementById('g2bill').value
+                    usage: g2usage,
+                    rate: g2rate,
+                    bill: g2usage * g2rate
                 };
             }
 
@@ -548,12 +824,12 @@
 
             html += `
                 <div class="stat-box" style="border-left-color: #ef4444;">
-                    <div class="stat-label">Monthly Increase</div>
+                    <div class="stat-label">Monthly Change</div>
                     <div class="stat-value danger" data-val="${monthlyInc}">$0</div>
                 </div>
                 <div class="stat-box" style="border-left-color: #10b981;">
                     <div class="stat-label">24-Mo Savings Potential</div>
-                    <div class="stat-value success" data-val="${savings}">$0</div>
+                    <div class="stat-value success" data-val="${savings > 0 ? savings : 0}">$0</div>
                 </div>
             `;
 
@@ -624,8 +900,8 @@ Energy: ${data.energyType}
                 const trend = ((data.e1.bill - data.e2.bill) / data.e2.bill * 100).toFixed(1);
                 body += `ELECTRIC - LAST 2 MONTHS:
 
-Month 1: ${data.e1.usage.toLocaleString()} kWh @ $${data.e1.rate}/kWh = $${data.e1.bill.toLocaleString()}
-Month 2: ${data.e2.usage.toLocaleString()} kWh @ $${data.e2.rate}/kWh = $${data.e2.bill.toLocaleString()}
+Month 1: ${data.e1.usage.toLocaleString()} kWh @ $${data.e1.rate}/kWh = $${data.e1.bill.toLocaleString()} (calculated)
+Month 2: ${data.e2.usage.toLocaleString()} kWh @ $${data.e2.rate}/kWh = $${data.e2.bill.toLocaleString()} (calculated)
 Trend: ${trend}% change
 Annual: ~$${(data.e1.bill * 12).toLocaleString()}
 
@@ -636,8 +912,8 @@ Annual: ~$${(data.e1.bill * 12).toLocaleString()}
                 const trend = ((data.g1.bill - data.g2.bill) / data.g2.bill * 100).toFixed(1);
                 body += `GAS - LAST 2 MONTHS:
 
-Month 1: ${data.g1.usage.toLocaleString()} therms @ $${data.g1.rate}/therm = $${data.g1.bill.toLocaleString()}
-Month 2: ${data.g2.usage.toLocaleString()} therms @ $${data.g2.rate}/therm = $${data.g2.bill.toLocaleString()}
+Month 1: ${data.g1.usage.toLocaleString()} therms @ $${data.g1.rate}/therm = $${data.g1.bill.toLocaleString()} (calculated)
+Month 2: ${data.g2.usage.toLocaleString()} therms @ $${data.g2.rate}/therm = $${data.g2.bill.toLocaleString()} (calculated)
 Trend: ${trend}% change
 Annual: ~$${(data.g1.bill * 12).toLocaleString()}
 
